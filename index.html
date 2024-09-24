@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>NIXIESEARCH: Running Lucene over S3</title>
+
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/dracula.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h1>NIXIESEARCH:</h1>
+				<img src="img/planes.png" height="300px" style="margin: 0px;">
+				<h2 style="margin: 0px;">Running Lucene over S3</h2>
+
+				<h4>And why we are building our own serverless search engine</h4>
+				<small>Haystack EU 2024 | Roman Grebennikov</small>
+			</section>
+			<section>
+				<h2>whoami</h2>
+				<p>🔎</p>
+				<ul>
+					<li>PhD in CS, quant trading, credit scoring</li>
+					<li><strong>Findify</strong>: e-commerce search, personalization</li>
+					<li><strong>Delivery Hero</strong>: food search, LLMs</li>
+					<li><strong>Opensource</strong>: Metarank, lightgbm4j, flink-scala-api</li>
+				</ul>
+			</section>
+			<section>
+				<img src="img/splitbrain.png" height="650px">
+			</section>
+			<section>
+				<h2>Curse of stateful apps</h2>
+				<img src="img/stateful.png" height="350px">
+				<ul>
+					<li>Depends on per-node storage</li>
+					<li>Up/Down-scaling requires rebalance</li>
+					<li>"state inside" - good luck if borked</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Blessing of stateless apps</h2>
+				<img src="img/stateless.png" height="350px">
+				<ul>
+					<li>Managed by cloud providers (and not by you)</li>
+					<li>pros TODO</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Stateless search?</h2>
+				<ul>
+					<li>Lucene world: NRTSearch, Elastic Serverless</li>
+					<li>Non-Lucene: quickwit, turbopuffer</li>
+				</ul>
+				<img src="img/cheap2.png" height="250px">
+				<p>Main point: decouple search and storage</p>
+			</section>
+			<section>
+				<h2>Industry goes stateless</h2>
+				<ul>
+					<li><strong>Uber</strong>: Lucene: Uber’s Search Platform Version Upgrade [1]</li>
+					<li><strong>Doordash</strong>: Introducing DoorDash’s in-house search engine [2]</li>
+					<li><strong>Amazon</strong>: E-Commerce search at scale on Apache Lucene [3]</li>
+				</ul>
+				<p><img src="img/doordash.gif" height="250px" style="margin: 0px;"></p>
+				<p>
+					<small>[1]: <a
+							href="https://www.uber.com/en-NL/blog/lucene-version-upgrade/">https://www.uber.com/en-NL/blog/lucene-version-upgrade/</a></small>
+					<small>[2]: <a
+							href="https://careers.doordash.com/blog/introducing-doordashs-in-house-search-engine/">https://careers.doordash.com/blog/introducing-doordashs-in-house-search-engine/</a>
+					</small>
+					<small>[3]: <a
+							href="https://www.youtube.com/watch?v=EkkzSLstSAE">https://www.youtube.com/watch?v=EkkzSLstSAE</a></small>
+				</p>
+			</section>
+			<section>
+				<p>open-source?</p>
+				<img src="img/hamster.jpg" height="300px">
+			</section>
+			<section>
+				<h2>Nixiesearch</h2>
+				<img src="img/nixie-github.png" height="400px" style="margin: 0px;">
+				<ul>
+					<li>Started as a POC for Lucene over S3</li>
+					<li>Went further: RAG, local inference, hybrid search</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Lucene and S3: 2007</h2>
+				<img src="img/shay2007.png" height="500px">
+			</section>
+			<section>
+				<h2>Lucene Directory</h2>
+				<p>IO abstraction for data access:</p>
+				<ul>
+					<li>lawful good: MMapDirectory, ByteBuffersDirectory</li>
+					<li>chaotic evil: JDBCDirectory</li>
+				</ul>
+				<pre><code data-trim data-noescape>
+				public abstract class Directory implements Closeable {
+					public abstract String[] listAll();
+					public abstract void deleteFile(String name);
+					public abstract long fileLength(String name);
+					public abstract void rename(String source, String dest);
+					public abstract IndexOutput createOutput(String name, IOContext context);
+					public abstract IndexInput openInput(String name, IOContext context);
+					public abstract void close();
+				}
+				</code></pre>
+			</section>
+			<section>
+				<h2>Lucene S3 Directory</h2>
+				<img src="img/s3dir.png" height="500px">
+			</section>
+			<section>
+				<h2>S3 - a remote block store!</h2>
+				<img src="img/s3dir-perf.png" height="200px">
+				<img src="img/remote-store.png" height="300px">
+		</div>
+	</div>
+
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+			history: true,
+			controls: true,
+			progress: true,
+			width: 1200,
+			transition: 'none',
+			slideNumber: true,
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+		});
+	</script>
+</body>
+
+</html>
