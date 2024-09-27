@@ -53,13 +53,16 @@
 				<img src="img/stateless.png" height="350px">
 				<ul>
 					<li>Managed by cloud providers (and not by you)</li>
-					<li>pros TODO</li>
+					<li>Easier to modify (data + metadata)</li>
 				</ul>
+			</section>
+			<section>
+				<img src="img/index-pipeline.png">
 			</section>
 			<section>
 				<h2>Stateless search?</h2>
 				<ul>
-					<li>Lucene world: NRTSearch, Elastic Serverless</li>
+					<li>Lucene world: NRTSearch, OpenSearch</li>
 					<li>Non-Lucene: quickwit, turbopuffer</li>
 				</ul>
 				<img src="img/cheap2.png" height="250px">
@@ -89,7 +92,7 @@
 			</section>
 			<section>
 				<h2>Nixiesearch</h2>
-				<img src="img/nixie-github.png" height="400px" style="margin: 0px;">
+				<img src="img/beer.png" height="450px" style="margin: 0px;">
 				<ul>
 					<li>Started as a POC for Lucene over S3</li>
 					<li>Went further: RAG, local inference, hybrid search</li>
@@ -103,8 +106,8 @@
 				<h2>Lucene Directory</h2>
 				<p>IO abstraction for data access:</p>
 				<ul>
-					<li>lawful good: MMapDirectory, ByteBuffersDirectory</li>
-					<li>chaotic evil: JDBCDirectory</li>
+					<li><strong>lawful good</strong>: MMapDirectory, ByteBuffersDirectory</li>
+					<li><strong>chaotic evil</strong>: JDBCDirectory</li>
 				</ul>
 				<pre><code data-trim data-noescape>
 				public abstract class Directory implements Closeable {
@@ -124,8 +127,23 @@
 			</section>
 			<section>
 				<h2>S3 - a remote block store!</h2>
-				<img src="img/s3dir-perf.png" height="200px">
 				<img src="img/remote-store.png" height="300px">
+				<img src="img/s3dir-perf.png" height="200px">
+			</section>
+			<section>
+				<h2>Nixie v0.0.1: S3Directory</h2>
+				<p>Own read-only S3Directory, with block caching</p>
+				<img src="img/directory1.png" height="350px" style="margin: 0px;">
+			</section>
+			<section>
+				<h2>Nixie v0.0.1: S3Directory</h2>
+				<p>Own read-only S3Directory, with block caching</p>
+				<img src="img/directory2.png" height="350px" style="margin: 0px;">
+				<ul>
+					<li><strong>pros:</strong> no storage, stateless nodes</li>
+					<li><strong>pros:</strong> easy up-down scaling, state - file on S3</li>
+					<li><strong>con:</strong> LATENCY</li>
+				</ul>
 			</section>
 			<section>
 				<h2>S3 vs S3-Express latency</h2>
@@ -138,9 +156,259 @@
 						</tr>
 					</tbody>
 				</table>
+				<p><strong>first-byte latency</strong>: 20ms vs 5ms</p>
+			</section>
+			<section>
+				<h2>S3 vs S3-Express latency</h2>
+				<img src="img/lastbyte.png" height="350px">
+				<p><strong>last-byte latency</strong>: const_delay + transfer</p>
+			</section>
+			<section>
+				<h2>Experiment setup</h2>
+				<ul>
+					<li>MSMARCO dataset, 10k, 100k, 1m documents</li>
+					<li>HNSW search over e5-base-v2 (768 dims), 1 segment</li>
+					<li>Default Lucene HNSW settings (M=16, efC=100)</li>
+				</ul>
 			</section>
 			<section>
 				<img src="img/s3-block.png" height="650px">
+			</section>
+			<section>
+				<img src="img/s3-block.png" height="450px">
+				<ul>
+					<li>10k docs: #1 request reads 30% of the index</li>
+					<li>1M docs: <strong>3 SECOND LATENCY?</strong></li>
+				</ul>
+			</section>
+			<section>
+				<h2>HNSW for dummies</h2>
+				<img src="img/hnsw.png" height="400px">
+				<p>Each probe = sequental random read = +5ms</p>
+			</section>
+			<section>
+				<h2>N-th request latency</h2>
+				<p>1M documents, bs=8192:</p>
+				<table>
+					<tbody>
+						<tr>
+							<td><img src="img/explatency.png" height="350px"></td>
+							<td><img src="img/read-rate.png" height="350px"></td>
+						</tr>
+					</tbody>
+				</table>
+				<p>Not getting better after request #32 😭</p>
+			</section>
+			<section>
+				<h2>Lucene v10 I/O concurrency</h2>
+				<img src="img/prefetch.png" height="600px" style="margin: 0px;">
+			</section>
+			<section>
+				<h2>LUCENE-13179 TLDR</h2>
+				<ul>
+					<li>Sequential IO is slow, let's make it concurrent</li>
+					<li><strong>IndexInput.prefetch</strong> - hint for future reads</li>
+				</ul>
+				<img src="img/lucene-13179.png" height="450px">
+			</section>
+			<section>
+				<h2>S3: 👎 latency, 👍 concurrency</h2>
+				<img src="img/s3-threads.png">
+				<ul>
+					<li>1 GB/s. Can fetch 10GB index in 10 seconds</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Serverless dilemma</h2>
+				<ul>
+					<li>No cold start: need to sync the index</li>
+					<li>Fast startup: high search latency</li>
+				</ul>
+				<img src="img/separate-indexer.png" height="300px">
+				<p>Nixiesearch: segment replication</p>
+			</section>
+			<section>
+				<h2>How far does stateless go?</h2>
+				<ul>
+					<li>Stateless index: on S3 ✅</li>
+					<li>Immutable configuration 🤔</li>
+				</ul>
+				<p><img src="img/move-fast.jpg" height="450px" style="margin: 0px;"></p>
+			</section>
+			<section>
+				<h2>Immutable config</h2>
+				<p>Regular backend app config change:</p>
+				<ul>
+					<li class="fragment">Commit config to git</li>
+					<li class="fragment">PR review, CI/CD blue-green deploy</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Immutable config</h2>
+				<p>Mapping change in an index:</p>
+				<ul>
+					<li class="fragment">Send HTTP POST request to prod cluster</li>
+					<li class="fragment">Earth shaking, light goes off</li>
+					<li class="fragment">You hear siren sounds</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Config management in Nixie</h2>
+				<pre><code data-trim data-noescape style="max-height: 600px;">
+inference:
+	embedding:
+		text:
+			provider: onnx
+			model: nixiesearch/e5-small-v2-onnx
+
+schema:
+	helloworld:
+		fields:
+			title:
+				type: text
+				search:
+					type: semantic
+					model: text
+			price:
+				type: int     # can be also float/long/double
+				filter: true  
+				facet: true   
+				sort: true
+				</code></pre>
+			</section>
+			<section>
+				<h2>Search is not special</h2>
+				<img src="img/config.png" height="400px">
+				<ul>
+					<li>No way to change the runtime config</li>
+					<li>Index schema, system settings = just conf</li>
+				</ul>
+			</section>
+			<section>
+				<h2>When things go bad</h2>
+				<ul>
+					<li>Index + config compatible = healthcheck OK</li>
+					<li>int -> string = need to reindex ☢️</li>
+				</ul>
+				<img src="img/separate-indexer.png" height="200px">
+				<p>index = directory on S3</p>
+			</section>
+			<section>
+				<h2>Push vs pull indexing</h2>
+				<p><img src="img/dont-do.png" height="300px"></p>
+				<ul>
+					<li><strong>Push</strong>: same cluster, control backpressure</li>
+					<li><strong>Pull</strong>: separate service, offline</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Offline reindex</h2>
+				<img src="img/reindex1.png" height="550px">
+			</section>
+			<section>
+				<h2>Offline reindex</h2>
+				<img src="img/reindex2.png" height="550px">
+			</section>
+			<section>
+				<h2>Offline reindex</h2>
+				<img src="img/reindex3.png" height="550px">
+			</section>
+			<section>
+				<h2>Offline reindex</h2>
+				<img src="img/reindex4.png" height="550px">
+			</section>
+			<section>
+				<h2>demo</h2>
+			</section>
+			<section>
+				<h2>Text in, text out, 100% local</h2>
+				<p><img src="img/openai.png" height="300px"></p>
+				<ul>
+					<li>Embeddings and LLM inference is local</li>
+					<li>ONNX, GGUF - GPU for indexing 🤔</li>
+				</ul>
+				<pre><code data-trim data-noescape>
+					docker run --gpus=all nixiesearch/nixiesearch:0.3.3-amd64-gpu index
+				</code></pre>
+			</section>
+			<section>
+				<h2>Why local inference?</h2>
+				<ol>
+					<li><strong>Latency</strong>: CPU ONNX e5-base-v2 inference is 5ms</li>
+					<li><strong>Privacy</strong>: data is not leaving your perimeter </li>
+				</ol>
+				<p>Optional: openai, cohere, mxb, google providers</p>
+			</section>
+			<section>
+				<h2>The Bad, The Ugly</h2>
+				<p><img src="img/sharding.png" height="500px" style="margin: 0px;"></p>
+				<ul>
+					<li>No sharding support (yet)</li>
+				</ul>
+			</section>
+			<section>
+				<h2>No sharding, really?</h2>
+				<p><img src="img/yes.gif"></p>
+				<ul>
+					<li>1M docs ESCI index: 4GB</li>
+					<li>1B index: 99% it's logs/APM/traces</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Future: reranking support</h2>
+				<p>Single retrieval pipeline:</p>
+				<ul>
+					<li>Cross-encoder: rerank top-N candidates</li>
+					<li>retrieve -> rerank -> summarize</li>
+					<li>Local ONNX, optional external providers</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Future: ingestion pipeline</h2>
+				<p>Common NLP tasks, automated:</p>
+				<ul>
+					<li>Transform a field before indexing</li>
+					<li>Split to chunks, summarize</li>
+					<li>Contextual embeddings for RAG</li>
+				</ul>
+				<p>EC2 g4.large with T4 GPU = 300$/month</p>
+			</section>
+			<section>
+				<h2>Future: domain adaptation</h2>
+				<p>Different search engines, same embedding, same results</p>
+				<ul>
+					<li><strong>Fine-tuning is dead</strong>: you need training data</li>
+					<li><strong>You have only docs</strong>: can you generate queries and labels?</li>
+				</ul>
+			</section>
+			<section>
+				<h2>Future: domain adaptation</h2>
+				<p>Fine-tuning on LLM-generated synthetic data</p>
+				<ul>
+					<li>For each document <strong>generate a query</strong>: it's a positive</li>
+					<li>For query+positive, <strong>mine negatives</strong></li>
+					<li><strong>Fine-tune</strong> the embedding model</li>
+				</ul>
+				<img src="img/qgen.png" height="300px">
+			</section>
+			<section>
+				<h2>Expect a bumpy ride</h2>
+				<p><img src="img/releases.png"></p>
+				<ul>
+					<li>Some features might be missing (like sorting)</li>
+					<li>Docs are imperfect - but they exist!</li>
+					<li>There <s>may</s> will be breaking changes</li>
+				</ul>
+				<p>No baggage - faster to innovate</p>
+			</section>
+			<section>
+				<h2>Links</h2>
+				<p><img src="img/genie.jpg" height="400px" style="margin: 0px;"></p>
+				<ul>
+					<li>Github: <a href="">nixiesearch/nixiesearch</a></li>
+					<li>Docs microsite: <a href="">nixiesearch.ai</a></li>
+					<li>Slack: <a href="">nixiesearch.ai/slack</a></li>
+				</ul>
 			</section>
 		</div>
 	</div>
