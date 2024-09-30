@@ -36,8 +36,13 @@
 					<li><strong>Opensource</strong>: Metarank, lightgbm4j, flink-scala-api</li>
 				</ul>
 			</section>
+			<!--section>
+				<h2>Conference-reality mismatch</h2>
+				<img src="img/poc.png">
+			</section-->
 			<section>
-				<img src="img/splitbrain.png" height="650px">
+				<h2>Conference-reality mismatch</h2>
+				<img src="img/splitbrain.png" height="600px" style="margin: 0px;">
 			</section>
 			<section>
 				<h2>Curse of stateful apps</h2>
@@ -200,7 +205,7 @@
 				<p>Not getting better after request #32 😭</p>
 			</section>
 			<section>
-				<h2>todo: trolleybus.png</h2>
+				<img src="img/bus.png" height="600px">
 			</section>
 			<section>
 				<h2>Lucene v10 I/O concurrency</h2>
@@ -339,10 +344,13 @@ schema:
 				</ul>
 			</section>
 			<section>
-				<h2>One search to rule them all?</h2>
-				<ul>
-					<li>"pareto" search engine: </li>
-				</ul>
+				<h2>Why local inference?</h2>
+				<ol>
+					<li><strong>Latency</strong>: CPU ONNX e5-base-v2 inference is 5ms</li>
+					<li><strong>Privacy</strong>: data is not leaving your perimeter </li>
+				</ol>
+				<img src="img/warn.jpg" height="300px">
+				<p>Optional: openai, cohere, mxb, google providers</p>
 			</section>
 			<section>
 				<h2>Text in, text out, 100% local</h2>
@@ -354,15 +362,6 @@ schema:
 				<pre><code data-trim data-noescape>
 					docker run --gpus=all nixiesearch/nixiesearch:0.3.3-amd64-gpu index
 				</code></pre>
-			</section>
-			<section>
-				<h2>Why local inference?</h2>
-				<ol>
-					<li><strong>Latency</strong>: CPU ONNX e5-base-v2 inference is 5ms</li>
-					<li><strong>Privacy</strong>: data is not leaving your perimeter </li>
-				</ol>
-				<img src="img/warn.jpg" height="300px">
-				<p>Optional: openai, cohere, mxb, google providers</p>
 			</section>
 			<section>
 				<h2>Future: reranking support</h2>
@@ -424,8 +423,8 @@ schema:
 			<section>
 				<h2>Links</h2>
 				<p><img src="img/opensource.png" height="400px" style="margin: 0px;"></p>
-				<ul> 
-					<li>Github: <a href="https://nixiesearch/nixiesearch">nixiesearch/nixiesearch</a></li>
+				<ul>
+					<li>Github: <a href="https://github.com/nixiesearch/nixiesearch">nixiesearch/nixiesearch</a></li>
 					<li>Docs microsite: <a href="https://nixiesearch.ai">nixiesearch.ai</a></li>
 					<li>Slack: <a href="https://nixiesearch.ai/slack">nixiesearch.ai/slack</a></li>
 				</ul>
