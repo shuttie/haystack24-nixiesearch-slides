@@ -9,7 +9,7 @@
 
 	<link rel="stylesheet" href="dist/reset.css">
 	<link rel="stylesheet" href="dist/reveal.css">
-	<link rel="stylesheet" href="dist/theme/dracula.css">
+	<link rel="stylesheet" href="dist/theme/beige.css">
 
 	<!-- Theme used for syntax highlighted code -->
 	<link rel="stylesheet" href="plugin/highlight/monokai.css">
@@ -200,6 +200,9 @@
 				<p>Not getting better after request #32 😭</p>
 			</section>
 			<section>
+				<h2>todo: trolleybus.png</h2>
+			</section>
+			<section>
 				<h2>Lucene v10 I/O concurrency</h2>
 				<img src="img/prefetch.png" height="600px" style="margin: 0px;">
 			</section>
@@ -321,8 +324,29 @@ schema:
 				<h2>demo</h2>
 			</section>
 			<section>
+				<h2>The Bad, The Ugly</h2>
+				<p><img src="img/sharding.png" height="500px" style="margin: 0px;"></p>
+				<ul>
+					<li>No sharding support (yet)</li>
+				</ul>
+			</section>
+			<section>
+				<h2>No sharding, really?</h2>
+				<p><img src="img/yes.gif"></p>
+				<ul>
+					<li>1M docs MSMARCO index: 3GB</li>
+					<li>1B/1T index: 95% it's logs/APM/traces</li>
+				</ul>
+			</section>
+			<section>
+				<h2>One search to rule them all?</h2>
+				<ul>
+					<li>"pareto" search engine: </li>
+				</ul>
+			</section>
+			<section>
 				<h2>Text in, text out, 100% local</h2>
-				<p><img src="img/openai.png" height="300px"></p>
+				<p><img src="img/openai.png" height="350px" style="margin: 0px;"></p>
 				<ul>
 					<li>Embeddings and LLM inference is local</li>
 					<li>ONNX, GGUF - GPU for indexing 🤔</li>
@@ -337,25 +361,12 @@ schema:
 					<li><strong>Latency</strong>: CPU ONNX e5-base-v2 inference is 5ms</li>
 					<li><strong>Privacy</strong>: data is not leaving your perimeter </li>
 				</ol>
+				<img src="img/warn.jpg" height="300px">
 				<p>Optional: openai, cohere, mxb, google providers</p>
 			</section>
 			<section>
-				<h2>The Bad, The Ugly</h2>
-				<p><img src="img/sharding.png" height="500px" style="margin: 0px;"></p>
-				<ul>
-					<li>No sharding support (yet)</li>
-				</ul>
-			</section>
-			<section>
-				<h2>No sharding, really?</h2>
-				<p><img src="img/yes.gif"></p>
-				<ul>
-					<li>1M docs MSMARCO index: 3GB</li>
-					<li>1B index: 99% it's logs/APM/traces</li>
-				</ul>
-			</section>
-			<section>
 				<h2>Future: reranking support</h2>
+				<img src="img/pipeline.png" height="300px" style="margin: 0px;">
 				<p>Single retrieval pipeline:</p>
 				<ul>
 					<li>Cross-encoder: rerank top-N candidates</li>
@@ -365,13 +376,20 @@ schema:
 			</section>
 			<section>
 				<h2>Future: ingestion pipeline</h2>
-				<p>Common NLP tasks, automated:</p>
+				<p>Common high-level tasks, automated:</p>
 				<ul>
 					<li>Transform a field before indexing</li>
 					<li>Split to chunks, summarize</li>
 					<li>Contextual embeddings for RAG</li>
 					<li>Automated category detection</li>
 				</ul>
+				<pre><code data-trim data-noescape style="max-height: 600px;">
+					- type: image
+					  model: openclip
+
+					- type: text
+					  from: ".title | summarize(gemma2, prompt='...')"
+				</code></pre>
 				<p>EC2 g4.large with T4 GPU = 300$/month</p>
 			</section>
 			<section>
@@ -381,6 +399,7 @@ schema:
 					<li><strong>Fine-tuning is dead</strong>: you need training data</li>
 					<li><strong>You have only docs</strong>: can you generate queries and labels?</li>
 				</ul>
+				<img src="img/adaptation.png" height="400px" style="margin: 0px;">
 			</section>
 			<section>
 				<h2>Future: domain adaptation</h2>
@@ -404,8 +423,8 @@ schema:
 			</section>
 			<section>
 				<h2>Links</h2>
-				<p><img src="img/genie.jpg" height="400px" style="margin: 0px;"></p>
-				<ul>
+				<p><img src="img/opensource.png" height="400px" style="margin: 0px;"></p>
+				<ul> 
 					<li>Github: <a href="https://nixiesearch/nixiesearch">nixiesearch/nixiesearch</a></li>
 					<li>Docs microsite: <a href="https://nixiesearch.ai">nixiesearch.ai</a></li>
 					<li>Slack: <a href="https://nixiesearch.ai/slack">nixiesearch.ai/slack</a></li>
